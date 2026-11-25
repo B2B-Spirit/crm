@@ -25,6 +25,19 @@
 
 Frappe CRM is a simple, affordable, open-source CRM tool designed for modern sales teams with unlimited users. Frappe CRM is crafted for providing a great user experience, packed with features for core CRM activities helping you build strong customer relationships while keeping things clean and organised.
 
+### Meetings customization
+
+This fork adds Meetings to the CRM sidebar and to lead and deal activity tabs.
+Meetings can be created independently or from a lead or deal. Open a saved
+meeting to add attachments.
+
+The interface requires the site's custom `CRM Meeting Minutes`,
+`CRM Meeting Attendee`, and `CRM Meeting Action Item` DocTypes. Creating and
+updating CRM tasks from action items also requires the site's
+`Create CRM Tasks from Meeting Action Items` server script; that script and
+the DocTypes are stored in the Frappe site database, not in this repository.
+An action item needs a linked deal, organization, or lead to create a task.
+
 ### Motivation
 
 The motivation behind building Frappe CRM stems from the need for a simple, customizable, and open-source solution tailored to modern business needs. Many existing CRMs are either too complex, overly generic, or locked behind steep pricing models that hinder accessibility and flexibility. Frappe CRM was designed to bridge this gap, offering a tool that empowers businesses to manage their customer relationships seamlessly while being easy to adapt to specific workflows. Built on the Frappe framework, it prioritizes usability, extensibility, and affordability, making it an ideal choice for growing teams and organizations looking for a CRM that aligns with their unique processes.

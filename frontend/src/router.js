@@ -80,6 +80,11 @@ const routes = [
     component: () => import('@/pages/Tasks.vue'),
   },
   {
+    path: '/meetings',
+    name: 'Meetings',
+    component: () => import('@/pages/Meetings.vue'),
+  },
+  {
     alias: '/contacts',
     path: '/contacts/view/:viewType?',
     name: 'Contacts',

@@ -1,5 +1,6 @@
 <template>
   <ActivityHeader
+    v-if="title !== 'Meetings'"
     v-model="activeTab"
     v-model:showWhatsappTemplates="showWhatsappTemplates"
     v-model:showFilesUploader="showFilesUploader"
@@ -11,6 +12,11 @@
   />
   <FadedScrollableDiv class="flex flex-col h-full overflow-y-auto">
     <QuotationsList v-if="title == 'Quotations'" :deal="docname" />
+    <MeetingsList
+      v-else-if="title == 'Meetings'"
+      :referenceDoctype="doctype"
+      :referenceName="docname"
+    />
     <div
       v-else-if="all_activities?.loading"
       class="flex flex-1 flex-col items-center justify-center gap-3 text-2xl-medium text-ink-gray-4"
@@ -521,6 +527,7 @@ import { useNoteView } from '@/composables/noteView'
 import TaskArea from '@/components/Activities/TaskArea.vue'
 import AttachmentArea from '@/components/Activities/AttachmentArea.vue'
 import QuotationsList from '@/components/Activities/QuotationsList.vue'
+import MeetingsList from '@/components/MeetingsList.vue'
 import DataFields from '@/components/Activities/DataFields.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import ActivityIcon from '@/components/Icons/ActivityIcon.vue'

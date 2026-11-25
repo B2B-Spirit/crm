@@ -55,6 +55,16 @@
             :doctype="doctype"
             :docname="docname"
           />
+          <MeetingAttachments
+            v-if="doctype === 'CRM Meeting Minutes' && editMode"
+            :docname="docname"
+          />
+          <p
+            v-else-if="doctype === 'CRM Meeting Minutes'"
+            class="mt-4 text-sm text-ink-gray-5"
+          >
+            {{ __('Save the meeting, then reopen it to add attachments.') }}
+          </p>
           <ErrorMessage v-if="error" class="mt-4" :message="__(error)" />
         </div>
       </div>
@@ -75,6 +85,7 @@
 <script setup>
 import EditIcon from '@/components/Icons/EditIcon.vue'
 import FieldLayout from '@/components/FieldLayout/FieldLayout.vue'
+import MeetingAttachments from '@/components/MeetingAttachments.vue'
 import CustomActions from '@/components/CustomActions.vue'
 import { useDocument } from '@/data/document'
 import { globalStore } from '@/stores/global'

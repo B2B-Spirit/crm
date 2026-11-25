@@ -606,6 +606,11 @@ const fields = computed(() => {
   } else {
     processed =
       gridFields?.filter((f) => f.in_list_view).map((f) => getFieldObj(f)) || []
+    if (!processed.length && props.doctype === 'CRM Meeting Attendee') {
+      processed = gridFields
+        .filter((f) => f.fieldname === 'attendee_name')
+        .map((f) => getFieldObj(f))
+    }
   }
 
   // Filter out hidden columns (from script overrides)

@@ -348,6 +348,12 @@ const tabs = computed(() => {
       iconLeft: AttachmentIcon,
     },
     {
+      name: 'Meetings',
+      value: 'meetings',
+      label: __('Meetings'),
+      iconLeft: NoteIcon,
+    },
+    {
       name: 'WhatsApp',
       value: 'whatsapp',
       label: __('WhatsApp'),

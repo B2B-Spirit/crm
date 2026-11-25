@@ -6,6 +6,7 @@ import OrganizationsIcon from '@/components/Icons/OrganizationsIcon.vue'
 import PhoneIcon from '@/components/Icons/PhoneIcon.vue'
 import TaskIcon from '@/components/Icons/TaskIcon.vue'
 import LucideLayoutDashboard from '~icons/lucide/layout-dashboard'
+import LucideCalendarDays from '~icons/lucide/calendar-days'
 import router from '@/router'
 
 export const navigationItems = [
@@ -21,6 +22,7 @@ export const navigationItems = [
   { label: 'Organizations', icon: OrganizationsIcon, route: 'Organizations' },
   { label: 'Notes', icon: NoteIcon, route: 'Notes' },
   { label: 'Tasks', icon: TaskIcon, route: 'Tasks' },
+  { label: 'Meetings', icon: LucideCalendarDays, route: 'Meetings' },
   { label: 'Call Logs', icon: PhoneIcon, route: 'Call Logs' },
 ]
 
