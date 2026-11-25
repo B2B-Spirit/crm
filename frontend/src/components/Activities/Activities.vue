@@ -16,6 +16,7 @@
       v-else-if="title == 'Meetings'"
       :referenceDoctype="doctype"
       :referenceName="docname"
+      :referenceOrganization="doc.organization || ''"
     />
     <div
       v-else-if="all_activities?.loading"

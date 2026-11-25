@@ -1,17 +1,22 @@
 <template>
-  <section class="px-3 py-4 sm:px-10">
+  <section class="px-3 py-4 text-ink-gray-8 sm:px-10">
     <div class="mb-4 flex items-center justify-between gap-3">
       <h2 class="text-2xl-semibold text-ink-gray-8">{{ __('Meetings') }}</h2>
       <Button
         variant="solid"
         iconLeft="lucide-plus"
         :label="__('New Meeting')"
+        :loading="openingMeeting"
         @click="openMeeting()"
       />
     </div>
     <p v-if="error" role="alert" class="mb-3 text-ink-red-4">{{ error }}</p>
-    <p v-if="loading && !meetings.length">{{ __('Loading...') }}</p>
-    <p v-else-if="!meetings.length && !error">{{ __('No meetings yet') }}</p>
+    <p v-if="loading && !meetings.length" class="text-ink-gray-5">
+      {{ __('Loading...') }}
+    </p>
+    <p v-else-if="!meetings.length && !error" class="text-ink-gray-5">
+      {{ __('No meetings yet') }}
+    </p>
     <ul v-else class="divide-y divide-outline-elevation-2">
       <li v-for="meeting in meetings" :key="meeting.name">
         <button
@@ -21,7 +26,7 @@
         >
           <span class="font-medium text-ink-gray-8">{{ meeting.title }}</span>
           <span class="text-sm text-ink-gray-5">
-            {{ meeting.meeting_date }} · {{ meeting.status }}
+            {{ meeting.meeting_date }}
           </span>
         </button>
       </li>
@@ -38,16 +43,18 @@
 
 <script setup>
 import { useDoctypeModal } from '@/composables/doctypeModal'
-import { call } from 'frappe-ui'
+import { call, toast } from 'frappe-ui'
 import { ref, watch } from 'vue'
 
 const props = defineProps({
   referenceDoctype: { type: String, default: '' },
   referenceName: { type: String, default: '' },
+  referenceOrganization: { type: String, default: '' },
 })
 
 const meetings = ref([])
 const loading = ref(false)
+const openingMeeting = ref(false)
 const error = ref('')
 const hasMore = ref(false)
 const pageSize = 20
@@ -67,7 +74,7 @@ async function loadMeetings(append = false) {
   try {
     const result = await call('frappe.client.get_list', {
       doctype: 'CRM Meeting Minutes',
-      fields: ['name', 'title', 'meeting_date', 'status'],
+      fields: ['name', 'title', 'meeting_date'],
       filters,
       order_by: 'meeting_date desc, name desc',
       limit_start: append ? meetings.value.length : 0,
@@ -87,10 +94,39 @@ async function loadMeetings(append = false) {
 }
 
 const { showModal } = useDoctypeModal()
-function openMeeting(name = null) {
+async function openMeeting(name = null) {
+  if (openingMeeting.value) return
   const defaults = {}
   if (props.referenceDoctype === 'CRM Deal') defaults.deal = props.referenceName
   if (props.referenceDoctype === 'CRM Lead') defaults.lead = props.referenceName
+  if (!name && props.referenceOrganization) {
+    if (props.referenceDoctype === 'CRM Deal') {
+      defaults.organization = props.referenceOrganization
+    } else if (props.referenceDoctype === 'CRM Lead') {
+      openingMeeting.value = true
+      try {
+        const organizations = await call('frappe.client.get_list', {
+          doctype: 'CRM Organization',
+          fields: ['name'],
+          filters: { organization_name: props.referenceOrganization },
+          limit_page_length: 2,
+        })
+        if (organizations.length === 1) {
+          defaults.organization = organizations[0].name
+        } else {
+          toast.warning(
+            __('Could not uniquely match the lead organization. Select an organization manually.'),
+          )
+        }
+      } catch (err) {
+        toast.error(
+          err.messages?.[0] || __('Could not look up the lead organization. Select it manually.'),
+        )
+      } finally {
+        openingMeeting.value = false
+      }
+    }
+  }
   showModal({
     doctype: 'CRM Meeting Minutes',
     title: 'Meeting',

@@ -720,7 +720,7 @@ const addRow = () => {
   newRow['doctype'] = props.doctype
   newRow['parentfield'] = props.parentFieldname
   newRow['parenttype'] = props.parentDoctype
-  rows.value.push(newRow)
+  rows.value = [...rows.value, newRow]
   triggerOnRowAdd(newRow)
 }
 

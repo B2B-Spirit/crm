@@ -10,7 +10,7 @@
   >
     <EditorFixedMenu
       v-if="fixedMenu && !disabled"
-      :items="toolbar"
+      :items="fixedToolbar"
       class="w-full overflow-x-auto rounded-t-6 border border-outline-gray-2 p-1"
     />
     <EditorBubbleMenu v-if="bubbleMenu" :items="bubbleToolbar" />
@@ -28,6 +28,7 @@ import {
 import {
   buildEditorExtensions,
   formToolbar,
+  meetingToolbar,
   bubbleToolbar,
   uploadFile,
 } from '@/components/editor/config'
@@ -54,6 +55,7 @@ const props = defineProps({
   bubbleMenu: { type: Boolean, default: false },
   // lets people @mention teammates
   mentions: { type: Boolean, default: false },
+  allowHeading1: { type: Boolean, default: false },
 })
 
 const emit = defineEmits(['change'])
@@ -97,6 +99,9 @@ const editorClasses = computed(() => {
 })
 
 const { users } = usersStore()
+const fixedToolbar = computed(() =>
+  props.allowHeading1 ? meetingToolbar : props.toolbar,
+)
 
 const mentionItems = computed(
   () =>
@@ -108,9 +113,10 @@ const mentionItems = computed(
       })) || [],
 )
 
-const extensions = buildEditorExtensions(
-  props.mentions ? { mentions: () => mentionItems.value } : {},
-)
+const extensions = buildEditorExtensions({
+  ...(props.mentions ? { mentions: () => mentionItems.value } : {}),
+  allowHeading1: props.allowHeading1,
+})
 
 const content = ref(props.value ?? '')
 const isDirty = ref(false)

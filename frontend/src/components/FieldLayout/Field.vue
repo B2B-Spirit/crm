@@ -304,6 +304,7 @@
       :placeholder="getPlaceholder(field)"
       :mentions="isNote"
       :bubbleMenu="isNote"
+      :allowHeading1="isMeeting && ['agenda', 'discussion_summary', 'decisions'].includes(field.fieldname)"
       :editorClass="isNote ? '!min-h-[16rem]' : ''"
       :disabled="Boolean(field.disabled)"
       @change="(v) => fieldChange(v, field)"
@@ -403,6 +404,7 @@ const props = defineProps({
 const data = inject('data')
 const doctype = inject('doctype')
 const isNote = computed(() => unref(doctype) === 'FCRM Note')
+const isMeeting = computed(() => unref(doctype) === 'CRM Meeting Minutes')
 const docname = inject('docname', null)
 const preview = inject('preview')
 const isGridRow = inject('isGridRow')
@@ -624,6 +626,9 @@ const hasOptionIcons = computed(() =>
 
 function isFieldVisible(field, scriptHidden) {
   if (preview.value) return true
+  if (isMeeting.value && ['meeting_type', 'status', 'primary_contact'].includes(field.fieldname)) {
+    return false
+  }
 
   // Script override for hidden wins over everything
   if (scriptHidden !== undefined) return !scriptHidden

@@ -2,6 +2,7 @@ import {
   RichTextKit,
   Paragraph,
   HeadingGroup,
+  H1,
   Separator,
   Bold,
   Italic,
@@ -45,11 +46,14 @@ export function buildEditorExtensions(
     mentions?: MaybeRefOrGetter<MentionItem[]>
     starterKit?: Record<string, unknown>
     extra?: Extension[]
+    allowHeading1?: boolean
   } = {},
 ): Extension[] {
   return [
     RichTextKit.configure({
-      heading: { levels: [2, 3, 4, 5, 6] },
+      heading: {
+        levels: options.allowHeading1 ? [1, 2, 3, 4, 5, 6] : [2, 3, 4, 5, 6],
+      },
       ...(options.mentions ? { mention: { items: options.mentions } } : {}),
       ...(options.starterKit ? { starterKit: options.starterKit } : {}),
     }),
@@ -123,6 +127,12 @@ export const formToolbar: MenuItem[] = [
   Separator,
   MoreMenu,
 ]
+
+export const meetingToolbar: MenuItem[] = formToolbar.map((item) =>
+  item === HeadingGroup
+    ? { ...HeadingGroup, items: [H1, ...HeadingGroup.items] }
+    : item,
+)
 
 /** Upload handler for images/files dropped or pasted into an editor. */
 export function uploadFile(

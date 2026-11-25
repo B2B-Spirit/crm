@@ -30,6 +30,9 @@ Frappe CRM is a simple, affordable, open-source CRM tool designed for modern sal
 This fork adds Meetings to the CRM sidebar and to lead and deal activity tabs.
 Meetings can be created independently or from a lead or deal. Open a saved
 meeting to add attachments.
+Meetings opened from a deal inherit its organization. For leads, the
+organization is matched by name against existing CRM organizations; if there
+is no unique match, select one manually.
 
 The interface requires the site's custom `CRM Meeting Minutes`,
 `CRM Meeting Attendee`, and `CRM Meeting Action Item` DocTypes. Creating and
@@ -37,6 +40,7 @@ updating CRM tasks from action items also requires the site's
 `Create CRM Tasks from Meeting Action Items` server script; that script and
 the DocTypes are stored in the Frappe site database, not in this repository.
 An action item needs a linked deal, organization, or lead to create a task.
+The task is linked to the deal first, then the lead, then the organization.
 
 ### Motivation
 

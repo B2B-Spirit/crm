@@ -1,7 +1,7 @@
 <template>
   <Dialog
     v-model:open="show"
-    :size="doctype === 'FCRM Note' ? '2xl' : 'xl'"
+    :size="doctype === 'CRM Meeting Minutes' ? '4xl' : doctype === 'FCRM Note' ? '2xl' : 'xl'"
     :dismissible="doctype !== 'FCRM Note'"
     bare
   >
