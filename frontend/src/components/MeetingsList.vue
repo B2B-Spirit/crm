@@ -11,10 +11,10 @@
       />
     </div>
     <p v-if="error" role="alert" class="mb-3 text-ink-red-4">{{ error }}</p>
-    <p v-if="loading && !meetings.length" class="text-ink-gray-5">
+    <p v-if="loading && !meetings.length" class="text-ink-gray-8">
       {{ __('Loading...') }}
     </p>
-    <p v-else-if="!meetings.length && !error" class="text-ink-gray-5">
+    <p v-else-if="!meetings.length && !error" class="text-ink-gray-8">
       {{ __('No meetings yet') }}
     </p>
     <ul v-else class="divide-y divide-outline-elevation-2">
