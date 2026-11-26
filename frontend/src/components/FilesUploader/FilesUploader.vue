@@ -101,6 +101,7 @@ import { ref, computed } from 'vue'
 const props = defineProps({
   doctype: { type: String, required: true },
   docname: { type: String, required: true },
+  deferUpload: { type: Boolean, default: false },
   fieldname: { type: String, default: '' },
   options: {
     type: Object,
@@ -110,7 +111,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['after'])
+const emit = defineEmits(['after', 'selected'])
 // 'after' payload: array of uploaded file objects (each has file_url, file_name, name, ...)
 
 const show = defineModel({ type: Boolean })
@@ -143,10 +144,37 @@ const disableAttachButton = computed(() => {
 })
 
 function attachFiles() {
+  if (props.deferUpload) {
+    if (filesUploaderArea.value.showWebLink) {
+      return selectFiles([
+        {
+          fileUrl: filesUploaderArea.value.webLink,
+          name: filesUploaderArea.value.webLink,
+          private: false,
+        },
+      ])
+    }
+    return selectFiles(files.value)
+  }
   if (filesUploaderArea.value.showWebLink) {
     return uploadViaWebLink()
   }
   files.value.forEach((file, i) => attachFile(file, i))
+}
+
+function selectFiles(selectedFiles) {
+  emit(
+    'selected',
+    selectedFiles.map((file) => ({
+      fileObj: file.fileObj,
+      fileUrl: file.fileUrl,
+      name: file.name,
+      private: file.private,
+      type: file.type,
+    })),
+  )
+  files.value = []
+  show.value = false
 }
 
 function uploadViaWebLink() {

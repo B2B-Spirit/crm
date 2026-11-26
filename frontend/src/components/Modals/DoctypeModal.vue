@@ -49,22 +49,21 @@
         </div>
         <div>
           <FieldLayout
-            v-if="layout.data"
+            v-if="layout.data && !createdRecord"
             :tabs="layout.data"
             :data="doc"
             :doctype="doctype"
             :docname="docname"
           />
-          <MeetingAttachments
-            v-if="doctype === 'CRM Meeting Minutes' && editMode"
-            :docname="docname"
-          />
-          <p
-            v-else-if="doctype === 'CRM Meeting Minutes'"
-            class="mt-4 text-sm text-ink-gray-5"
-          >
-            {{ __('Save the meeting, then reopen it to add attachments.') }}
+          <p v-if="createdRecord" class="text-sm text-ink-gray-6">
+            {{ __('The meeting was saved. Finish uploading its attachments below.') }}
           </p>
+          <MeetingAttachments
+            v-if="isMeeting"
+            ref="meetingAttachments"
+            :doc="createdRecord || doc"
+            :docname="createdRecord?.name || doc.name || docname"
+          />
           <ErrorMessage v-if="error" class="mt-4" :message="__(error)" />
         </div>
       </div>
@@ -72,8 +71,17 @@
         <div class="flex flex-row-reverse gap-2">
           <Button
             variant="solid"
-            :label="editMode ? __('Update') : __('Create')"
-            :loading="editMode ? document.save.loading : create.loading"
+            :label="
+              createdRecord
+                ? __('Retry Attachments')
+                : editMode
+                  ? __('Update')
+                  : __('Create')
+            "
+            :loading="
+              savingAttachments ||
+              (editMode ? document.save.loading : _create.loading)
+            "
             @click="submit"
           />
         </div>
@@ -128,12 +136,21 @@ const layout = createResource({
 
 const error = ref(null)
 const editMode = computed(() => Boolean(document.doc?.name))
+const isMeeting = computed(() => props.doctype === 'CRM Meeting Minutes')
+const meetingAttachments = ref(null)
+const savingAttachments = ref(false)
+const createdRecord = ref(null)
 
 const _create = createResource({
   url: 'frappe.client.insert',
-  onSuccess: (d) => {
-    document.doc = {}
+  onSuccess: async (d) => {
     emit('afterInsert', d)
+    if (hasPendingMeetingAttachments()) {
+      createdRecord.value = d
+      await finishMeetingAttachmentUpload(d, true)
+      return
+    }
+    document.doc = {}
     show.value = false
   },
   onError: (err) => {
@@ -165,13 +182,20 @@ async function create() {
 function update() {
   // frappe-ui skips saving an unchanged doc without calling back, so handle it here
   if (!document.isDirty) {
+    if (hasPendingMeetingAttachments()) {
+      return finishMeetingAttachmentUpload(document.doc)
+    }
     toast.info(__('Nothing to update'))
     show.value = false
     return
   }
   document.save.submit(null, {
-    onSuccess: (d) => {
+    onSuccess: async (d) => {
       emit('afterUpdate', d)
+      if (hasPendingMeetingAttachments()) {
+        await finishMeetingAttachmentUpload(d)
+        return
+      }
       show.value = false
     },
     onError: (err) => {
@@ -180,10 +204,38 @@ function update() {
   })
 }
 
+function hasPendingMeetingAttachments() {
+  return isMeeting.value && meetingAttachments.value?.hasPending?.()
+}
+
+async function finishMeetingAttachmentUpload(record, resetDocument = false) {
+  savingAttachments.value = true
+  error.value = null
+  try {
+    await meetingAttachments.value.uploadPending(record)
+  } catch (err) {
+    error.value =
+      err.message ||
+      __('The meeting was saved, but its attachments could not be uploaded. Retry to finish.')
+    return
+  } finally {
+    savingAttachments.value = false
+  }
+  if (resetDocument) {
+    createdRecord.value = null
+    document.doc = {}
+  }
+  show.value = false
+}
+
 async function submit() {
   // editors save their text on blur, so blur first when saving from the keyboard
   window.document.activeElement?.blur()
   await nextTick()
+  if (createdRecord.value) {
+    await finishMeetingAttachmentUpload(createdRecord.value, true)
+    return
+  }
   if (editMode.value) update()
   else create()
 }

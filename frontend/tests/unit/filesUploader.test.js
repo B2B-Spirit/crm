@@ -92,6 +92,7 @@ async function mountUploader(props = {}) {
 
   const show = ref(true)
   const afterEvents = []
+  const selectedEvents = []
 
   const Parent = defineComponent({
     setup() {
@@ -102,6 +103,7 @@ async function mountUploader(props = {}) {
           doctype: 'CRM Deal',
           docname: 'DEAL-001',
           onAfter: (uploaded) => afterEvents.push(uploaded),
+          onSelected: (selected) => selectedEvents.push(selected),
           ...props,
         })
     },
@@ -122,7 +124,7 @@ async function mountUploader(props = {}) {
   }
   mounted.push(unmount)
 
-  return { root, show, afterEvents, unmount }
+  return { root, show, afterEvents, selectedEvents, unmount }
 }
 
 function pdf(name, size = 10) {
@@ -313,6 +315,24 @@ describe('FilesUploader', () => {
     expect(afterEvents).toEqual([
       [{ file_name: 'a.pdf' }, { file_name: 'b.pdf' }],
     ])
+    expect(show.value).toBe(false)
+  })
+
+  it('can return selected files without uploading them', async () => {
+    const { root, show, afterEvents, selectedEvents } = await mountUploader({
+      deferUpload: true,
+    })
+    const file = pdf('a.pdf')
+    await addFiles(root, [file])
+
+    findButton(root, 'Attach').click()
+    await nextTick()
+
+    expect(state.uploads).toEqual([])
+    expect(selectedEvents).toEqual([
+      [{ fileObj: file, fileUrl: undefined, name: 'a.pdf', private: false, type: 'application/pdf' }],
+    ])
+    expect(afterEvents).toEqual([])
     expect(show.value).toBe(false)
   })
 

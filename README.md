@@ -28,8 +28,10 @@ Frappe CRM is a simple, affordable, open-source CRM tool designed for modern sal
 ### Meetings customization
 
 This fork adds Meetings to the CRM sidebar and to lead and deal activity tabs.
-Meetings can be created independently or from a lead or deal. Open a saved
-meeting to add attachments.
+Meetings can be created independently or from a lead or deal. Meeting
+attachments can be selected before saving or updating; they are attached to
+the linked deal, lead, or organization (in that priority), or to the meeting
+itself when none of those records is linked.
 Meetings opened from a deal inherit its organization. For leads, the
 organization is matched by name against existing CRM organizations; if there
 is no unique match, select one manually.
